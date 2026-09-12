@@ -58,7 +58,11 @@ func (p *PostgresAdapter) QueryRow(query string, args ...any) storage.Scanner {
 }
 
 func (p *PostgresAdapter) Query(query string, args ...any) (storage.Rows, error) {
-	return p.db.Query(query, args...)
+	rows, err := p.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return nullRows{rows}, nil
 }
 
 func (p *PostgresAdapter) Close() error {
@@ -72,12 +76,20 @@ func (p *PostgresAdapter) TableColumns(table string) ([]string, error) {
 type errScanner struct{ s *sql.Row }
 
 func (e errScanner) Scan(dest ...any) error {
-	err := e.s.Scan(dest...)
+	err := e.s.Scan(storage.NullSafe(dest)...)
 	if err == sql.ErrNoRows {
 		return storage.ErrNoRows
 	}
 	return err
 }
+
+// nullRows applies the storage contract's NULL rule to the read-all path.
+// *sql.Rows satisfies storage.Rows on its own, which is precisely why this
+// wrapper is easy to forget: without it, ReadAll answers differently from
+// ReadOne on the same column.
+type nullRows struct{ *sql.Rows }
+
+func (r nullRows) Scan(dest ...any) error { return r.Rows.Scan(storage.NullSafe(dest)...) }
 
 func tableColumns(q interface {
 	Query(string, ...any) (storage.Rows, error)

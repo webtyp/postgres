@@ -44,7 +44,11 @@ func (p *PostgresTx) QueryRow(query string, args ...any) storage.Scanner {
 
 // Query executes a query that returns rows within the transaction.
 func (p *PostgresTx) Query(query string, args ...any) (storage.Rows, error) {
-	return p.tx.Query(query, args...)
+	rows, err := p.tx.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	return nullRows{rows}, nil
 }
 
 // Close is a no-op for storage.Conn in this context.
