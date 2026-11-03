@@ -2,8 +2,10 @@
 PLAN: "feat: postgres.Backups — open a pg_dump archive as a read-only ddl.Snapshot"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 10186233486079692440
+PR: https://github.com/webtyp/postgres/pull/17
+REVIEWED_COMMIT: b4525d83668333e967d1f838f5021809e2891e56
 ---
 
 > Read AGENTS.md at the repo root before any change.
