@@ -2,6 +2,8 @@
 PLAN: "feat: postgres.Backups — open a pg_dump archive as a read-only ddl.Snapshot"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 10186233486079692440
 ---
 
 > Read AGENTS.md at the repo root before any change.
