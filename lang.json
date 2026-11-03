@@ -1,16 +1,14 @@
 {
   "languages": ["es", "zh", "hi", "ar", "pt", "fr", "de", "ru"],
   "keys": {
-    "(transaction_timeout)": ["(transaction_timeout)", "", "", "", "", "", "", ""],
     "IN operator slice cannot be empty": ["la porción del operador IN no puede estar vacía", "", "", "", "", "", "", ""],
+    "It was skipped: your data was restored completely.": ["Se omitió: tus datos se restauraron completos.", "", "", "", "", "", "", ""],
+    "To stop seeing this notice, install the PostgreSQL client tools of version": ["Para dejar de ver este aviso, instala las herramientas cliente de PostgreSQL de la versión", "", "", "", "", "", "", ""],
     "is newer than the database server": ["es más nuevo que el servidor de base de datos", "", "", "", "", "", "", ""],
-    "it was skipped: your data was restored completely": ["se omitió: tus datos se restauraron completos", "", "", "", "", "", "", ""],
     "name required for drop column": ["se requiere el nombre para eliminar la columna", "", "", "", "", "", "", ""],
-    "pg_restore": ["pg_restore", "", "", "", "", "", "", ""],
     "required for add column": ["se requiere para agregar una columna", "", "", "", "", "", "", ""],
-    "so the server did not understand one setting it sent": ["por lo que el servidor no entendió un ajuste que envió", "", "", "", "", "", "", ""],
     "table and column": ["tabla y columna", "", "", "", "", "", "", ""],
     "table, old name and column required for rename": ["se requiere la tabla, el nombre antiguo y la columna para renombrar", "", "", "", "", "", "", ""],
-    "to stop seeing this notice, install the PostgreSQL client tools of version": ["para dejar de ver este aviso, instale las herramientas de cliente de PostgreSQL de la versión", "", "", "", "", "", "", ""]
+    "— the server did not understand one setting it sent": ["— el servidor no entendió un ajuste que envió", "", "", "", "", "", "", ""]
   }
 }

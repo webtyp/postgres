@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -22,10 +23,13 @@ var (
 )
 
 const (
-	pgRestoreBin   = "pg_restore"
-	snapshotPrefix = "snapshot_"
-	urlSchemePG    = "postgres"
-	urlSchemePGSQL = "postgresql"
+	pgRestoreBin = "pg_restore"
+	// settingTransactionTimeout is the only setting a newer pg_restore sends that an older server rejects; passed
+	// as data in the notice, never as a word to translate.
+	settingTransactionTimeout = "transaction_timeout"
+	snapshotPrefix            = "snapshot_"
+	urlSchemePG               = "postgres"
+	urlSchemePGSQL            = "postgresql"
 )
 
 // Backups opens pg_dump archives by restoring each one into a temporary database
@@ -46,7 +50,8 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 	if err != nil || (u.Scheme != urlSchemePG && u.Scheme != urlSchemePGSQL) {
 		return nil, ErrDSNNotURL
 	}
-	if _, err := exec.LookPath(pgRestoreBin); err != nil {
+	restoreTool, err := exec.LookPath(pgRestoreBin)
+	if err != nil {
 		return nil, ErrPgRestoreMissing
 	}
 	admin, err := sql.Open("postgres", b.dsn)
@@ -83,7 +88,8 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 	var notices []error
 	if err != nil {
 		if newer && onlyTransactionTimeout(string(out)) {
-			notices = []error{wfmt.Err("pg_restore", clientMajor, "is newer than the database server", serverMajor, "so the server did not understand one setting it sent", "(transaction_timeout)", "it was skipped: your data was restored completely", "to stop seeing this notice, install the PostgreSQL client tools of version", serverMajor)}
+			tool := filepath.Base(restoreTool) // the tool name is data: never a word to translate
+			notices = []error{wfmt.Err(tool, clientMajor, "is newer than the database server", serverMajor, "— the server did not understand one setting it sent", "("+settingTransactionTimeout+").", "It was skipped: your data was restored completely.", "To stop seeing this notice, install the PostgreSQL client tools of version", serverMajor)}
 		} else {
 			return nil, errors.Join(errors.New("postgres: pg_restore: "+strings.TrimSpace(string(out))), drop())
 		}
@@ -99,7 +105,7 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 // adapter; Close closes it and drops the temporary database.
 type snapshot struct {
 	*PostgresAdapter
-	drop func() error
+	drop    func() error
 	notices []error
 }
 

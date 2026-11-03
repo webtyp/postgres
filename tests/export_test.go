@@ -25,10 +25,10 @@ func (m *userModel) Schema() []model.Field {
 		{Name: "avatar", Type: model.Blob()},
 	}
 }
-func (m *userModel) Pointers() []any { return nil }
+func (m *userModel) Pointers() []any                  { return nil }
 func (m *userModel) EncodeFields(w model.FieldWriter) {}
 func (m *userModel) DecodeFields(r model.FieldReader) {}
-func (m *userModel) IsNil() bool { return m == nil }
+func (m *userModel) IsNil() bool                      { return m == nil }
 
 type roleModel struct{}
 
@@ -39,10 +39,10 @@ func (m *roleModel) Schema() []model.Field {
 		{Name: "name", Type: model.Text(), NotNull: true, Permitted: model.Permitted{Maximum: 100}, DB: &model.FieldDB{Unique: true}},
 	}
 }
-func (m *roleModel) Pointers() []any { return nil }
+func (m *roleModel) Pointers() []any                  { return nil }
 func (m *roleModel) EncodeFields(w model.FieldWriter) {}
 func (m *roleModel) DecodeFields(r model.FieldReader) {}
-func (m *roleModel) IsNil() bool { return m == nil }
+func (m *roleModel) IsNil() bool                      { return m == nil }
 
 type sessionModel struct{}
 
@@ -59,10 +59,10 @@ func (m *sessionModel) SchemaExt() []model.FieldExt {
 		{Field: model.Field{Name: "user_id"}, Ref: "users"},
 	}
 }
-func (m *sessionModel) Pointers() []any { return nil }
+func (m *sessionModel) Pointers() []any                  { return nil }
 func (m *sessionModel) EncodeFields(w model.FieldWriter) {}
 func (m *sessionModel) DecodeFields(r model.FieldReader) {}
-func (m *sessionModel) IsNil() bool { return m == nil }
+func (m *sessionModel) IsNil() bool                      { return m == nil }
 
 type userRoleModel struct{}
 
@@ -79,10 +79,10 @@ func (m *userRoleModel) SchemaExt() []model.FieldExt {
 		{Field: model.Field{Name: "role_id"}, Ref: "roles"},
 	}
 }
-func (m *userRoleModel) Pointers() []any { return nil }
+func (m *userRoleModel) Pointers() []any                  { return nil }
 func (m *userRoleModel) EncodeFields(w model.FieldWriter) {}
 func (m *userRoleModel) DecodeFields(r model.FieldReader) {}
-func (m *userRoleModel) IsNil() bool { return m == nil }
+func (m *userRoleModel) IsNil() bool                      { return m == nil }
 
 func TestExportDDL_FullSchema(t *testing.T) {
 	goldenRaw, err := os.ReadFile("schema.sql")

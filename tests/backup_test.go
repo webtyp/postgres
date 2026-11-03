@@ -190,7 +190,6 @@ func TestBackups_ReadTable(t *testing.T) {
 	}
 }
 
-
 func TestBackups_ReadTableCastsToText(t *testing.T) {
 	dsn := backupDsnOrSkip(t)
 	if _, err := exec.LookPath("pg_dump"); err != nil {
