@@ -38,6 +38,34 @@ func makeArchive(t *testing.T, dsn string) string {
 	if err != nil {
 		t.Fatalf("makeArchive sql.Open: %v", err)
 	}
+	var serverMajor int
+	if err := admin.QueryRow("SELECT current_setting('server_version_num')::int / 10000").Scan(&serverMajor); err != nil {
+		t.Fatalf("QueryRow: %v", err)
+	}
+	versionOut, err := exec.Command("pg_dump", "--version").Output()
+	if err != nil {
+		t.Skip("pg_dump not in PATH or fails")
+	}
+	idx := strings.Index(string(versionOut), "(PostgreSQL) ")
+	if idx != -1 {
+		verStr := string(versionOut)[idx+len("(PostgreSQL) "):]
+		endIdx := strings.IndexAny(verStr, " .\n\r")
+		if endIdx == -1 {
+			endIdx = len(verStr)
+		}
+		clientMajor, err := strconv.Atoi(verStr[:endIdx])
+		if err != nil {
+			t.Logf("makeArchive Atoi failed: %v", err)
+		} else {
+			_ = clientMajor
+		}
+	}
+	admin.Close()
+
+	admin, err = sql.Open("postgres", dsn)
+	if err != nil {
+		t.Fatalf("makeArchive sql.Open: %v", err)
+	}
 	n := strconv.FormatInt(time.Now().UnixNano(), 10)
 	dbName := "backup_src_" + n
 	if _, err := admin.Exec("CREATE DATABASE " + dbName); err != nil {
@@ -170,6 +198,34 @@ func TestBackups_ReadTableCastsToText(t *testing.T) {
 	}
 
 	admin, err := sql.Open("postgres", dsn)
+	if err != nil {
+		t.Fatalf("makeArchive sql.Open: %v", err)
+	}
+	var serverMajor int
+	if err := admin.QueryRow("SELECT current_setting('server_version_num')::int / 10000").Scan(&serverMajor); err != nil {
+		t.Fatalf("QueryRow: %v", err)
+	}
+	versionOut, err := exec.Command("pg_dump", "--version").Output()
+	if err != nil {
+		t.Skip("pg_dump not in PATH or fails")
+	}
+	idx := strings.Index(string(versionOut), "(PostgreSQL) ")
+	if idx != -1 {
+		verStr := string(versionOut)[idx+len("(PostgreSQL) "):]
+		endIdx := strings.IndexAny(verStr, " .\n\r")
+		if endIdx == -1 {
+			endIdx = len(verStr)
+		}
+		clientMajor, err := strconv.Atoi(verStr[:endIdx])
+		if err != nil {
+			t.Logf("makeArchive Atoi failed: %v", err)
+		} else {
+			_ = clientMajor
+		}
+	}
+	admin.Close()
+
+	admin, err = sql.Open("postgres", dsn)
 	if err != nil {
 		t.Fatalf("sql.Open: %v", err)
 	}
@@ -335,5 +391,58 @@ func TestBackups_BadArchive(t *testing.T) {
 	defer rows.Close()
 	if rows.Next() {
 		t.Errorf("expected no snapshot_* database left")
+	}
+}
+
+func TestBackups_NoticeWhenClientNewer(t *testing.T) {
+	dsn := backupDsnOrSkip(t)
+
+	admin, err := sql.Open("postgres", dsn)
+	if err != nil {
+		t.Fatalf("sql.Open: %v", err)
+	}
+	defer admin.Close()
+	var serverMajor int
+	if err := admin.QueryRow("SELECT current_setting('server_version_num')::int / 10000").Scan(&serverMajor); err != nil {
+		t.Fatalf("QueryRow: %v", err)
+	}
+
+	versionOut, err := exec.Command("pg_dump", "--version").Output()
+	if err != nil {
+		t.Skip("pg_dump not in PATH or fails")
+	}
+	idx := strings.Index(string(versionOut), "(PostgreSQL) ")
+	if idx == -1 {
+		t.Skip("pg_dump output format unknown")
+	}
+	verStr := string(versionOut)[idx+len("(PostgreSQL) "):]
+	endIdx := strings.IndexAny(verStr, " .\n\r")
+	if endIdx == -1 {
+		endIdx = len(verStr)
+	}
+	clientMajor, err := strconv.Atoi(verStr[:endIdx])
+	if err != nil {
+		t.Skipf("Atoi: %v", err)
+	}
+
+	path := makeArchive(t, dsn)
+	snap, err := postgres.Backups(dsn).OpenBackup(path)
+	if err != nil {
+		t.Fatalf("OpenBackup: %v", err)
+	}
+	defer snap.Close()
+
+	notices := snap.Notices()
+	if clientMajor > serverMajor {
+		if len(notices) != 1 {
+			t.Fatalf("expected 1 notice, got %d: %v", len(notices), notices)
+		}
+		if !strings.Contains(notices[0].Error(), "transaction_timeout") {
+			t.Errorf("notice does not contain transaction_timeout: %v", notices[0])
+		}
+	} else {
+		if len(notices) != 0 {
+			t.Errorf("expected 0 notices, got %d: %v", len(notices), notices)
+		}
 	}
 }

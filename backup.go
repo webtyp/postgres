@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"webtyp.com/ddl"
+	wfmt "webtyp.com/fmt"
 	"webtyp.com/storage"
 )
 
@@ -17,6 +18,7 @@ import (
 var (
 	ErrDSNNotURL        = errors.New("postgres: backups need a URL DSN (postgres://user:pass@host:port/db)")
 	ErrPgRestoreMissing = errors.New("postgres: pg_restore not found in PATH — install the PostgreSQL client tools")
+	ErrPgRestoreNewer   = errors.New("postgres: pg_restore is newer than the server — install the client tools of the server's major version and put them first in PATH")
 )
 
 const (
@@ -51,6 +53,21 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 	if err != nil {
 		return nil, err
 	}
+	var serverMajor int
+	if err := admin.QueryRow("SELECT current_setting('server_version_num')::int / 10000").Scan(&serverMajor); err != nil {
+		admin.Close()
+		return nil, err
+	}
+	versionOut, err := exec.Command(pgRestoreBin, "--version").Output()
+	if err != nil {
+		admin.Close()
+		return nil, err
+	}
+	clientMajor, newer, err := newerClient(string(versionOut), serverMajor)
+	if err != nil {
+		admin.Close()
+		return nil, err
+	}
 	name := snapshotPrefix + strconv.FormatInt(time.Now().UnixNano(), 10)
 	if _, err := admin.Exec("CREATE DATABASE " + quoteIdent(name)); err != nil {
 		admin.Close()
@@ -62,15 +79,20 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 		_, err := admin.Exec("DROP DATABASE IF EXISTS " + quoteIdent(name) + " WITH (FORCE)")
 		return errors.Join(err, admin.Close())
 	}
-	out, err := exec.Command(pgRestoreBin, "--no-owner", "--no-acl", "--dbname", target.String(), path).CombinedOutput()
+	out, err := exec.Command(pgRestoreBin, "--clean", "--if-exists", "--no-owner", "--no-acl", "--dbname", target.String(), path).CombinedOutput()
+	var notices []error
 	if err != nil {
-		return nil, errors.Join(errors.New("postgres: pg_restore: "+strings.TrimSpace(string(out))), drop())
+		if newer && onlyTransactionTimeout(string(out)) {
+			notices = []error{wfmt.Err("pg_restore", clientMajor, "is newer than the database server", serverMajor, "so the server did not understand one setting it sent", "(transaction_timeout)", "it was skipped: your data was restored completely", "to stop seeing this notice, install the PostgreSQL client tools of version", serverMajor)}
+		} else {
+			return nil, errors.Join(errors.New("postgres: pg_restore: "+strings.TrimSpace(string(out))), drop())
+		}
 	}
 	raw, err := sql.Open("postgres", target.String())
 	if err != nil {
 		return nil, errors.Join(err, drop())
 	}
-	return &snapshot{PostgresAdapter: &PostgresAdapter{db: raw}, drop: drop}, nil
+	return &snapshot{PostgresAdapter: &PostgresAdapter{db: raw}, drop: drop, notices: notices}, nil
 }
 
 // snapshot is a restored archive: introspection and reads go through the
@@ -78,6 +100,7 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 type snapshot struct {
 	*PostgresAdapter
 	drop func() error
+	notices []error
 }
 
 // ReadTable casts every column to text (ddl.Snapshot contract): the consumer
@@ -102,4 +125,45 @@ func (s *snapshot) Close() error {
 	return errors.Join(s.PostgresAdapter.Close(), s.drop())
 }
 
+func (s *snapshot) Notices() []error {
+	return s.notices
+}
+
 var _ ddl.Snapshot = (*snapshot)(nil)
+
+func newerClient(clientVersionOutput string, serverMajor int) (client int, newer bool, err error) {
+	idx := strings.Index(clientVersionOutput, "(PostgreSQL) ")
+	if idx == -1 {
+		return 0, false, errors.New("pg_restore output format unknown")
+	}
+	verStr := clientVersionOutput[idx+len("(PostgreSQL) "):]
+	endIdx := strings.IndexAny(verStr, " .\n\r")
+	if endIdx == -1 {
+		endIdx = len(verStr)
+	}
+	clientMajor, err := strconv.Atoi(verStr[:endIdx])
+	if err != nil {
+		return 0, false, err
+	}
+	return clientMajor, clientMajor > serverMajor, nil
+}
+
+func onlyTransactionTimeout(output string) bool {
+	if output == "" {
+		return false
+	}
+	lines := strings.Split(output, "\n")
+	hasError := false
+	for _, line := range lines {
+		if strings.Contains(line, "error:") {
+			if strings.Contains(line, "errors ignored on restore:") {
+				continue
+			}
+			if !strings.Contains(line, "unrecognized configuration parameter \"transaction_timeout\"") {
+				return false
+			}
+			hasError = true
+		}
+	}
+	return hasError
+}

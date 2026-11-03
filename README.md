@@ -40,7 +40,7 @@ func main() {
 	rows, err := snap.ReadTable("staff")
 ```
 
-Needs `pg_restore` in PATH and a URL DSN with permission to `CREATE DATABASE`.
+Needs `pg_restore` in PATH and a URL DSN with permission to `CREATE DATABASE`. The PostgreSQL client tools must not be newer than the server (ErrPgRestoreNewer says which to install).
 
 ## Features
 
