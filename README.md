@@ -30,6 +30,18 @@ func main() {
 }
 ```
 
+
+## Reading a backup
+
+```go
+	snap, err := postgres.Backups(dsn).OpenBackup("migrate/pastdb/1793656810107289500-db.backup")
+	if err != nil { return err }
+	defer snap.Close()
+	rows, err := snap.ReadTable("staff")
+```
+
+Needs `pg_restore` in PATH and a URL DSN with permission to `CREATE DATABASE`.
+
 ## Features
 
 - Full `storage.Conn` implementation (unifying DML Compilation and Execution).
