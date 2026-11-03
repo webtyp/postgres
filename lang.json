@@ -1,0 +1,14 @@
+{
+  "languages": ["es", "zh", "hi", "ar", "pt", "fr", "de", "ru"],
+  "keys": {
+    "IN operator slice cannot be empty": ["la porción del operador IN no puede estar vacía", "", "", "", "", "", "", ""],
+    "It was skipped: your data was restored completely.": ["Se omitió: tus datos se restauraron completos.", "", "", "", "", "", "", ""],
+    "To stop seeing this notice, install the PostgreSQL client tools of version": ["Para dejar de ver este aviso, instala las herramientas cliente de PostgreSQL de la versión", "", "", "", "", "", "", ""],
+    "is newer than the database server": ["es más nuevo que el servidor de base de datos", "", "", "", "", "", "", ""],
+    "name required for drop column": ["se requiere el nombre para eliminar la columna", "", "", "", "", "", "", ""],
+    "required for add column": ["se requiere para agregar una columna", "", "", "", "", "", "", ""],
+    "table and column": ["tabla y columna", "", "", "", "", "", "", ""],
+    "table, old name and column required for rename": ["se requiere la tabla, el nombre antiguo y la columna para renombrar", "", "", "", "", "", "", ""],
+    "— the server did not understand one setting it sent": ["— el servidor no entendió un ajuste que envió", "", "", "", "", "", "", ""]
+  }
+}

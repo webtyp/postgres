@@ -259,7 +259,7 @@ func translateDDL(s ddl.Stmt, m model.Model) (string, []any, error) {
 
 	case ddl.OpAddColumn:
 		if s.Column == nil || s.Table == "" {
-			return "", nil, fmt.Err("table and column required for add column")
+			return "", nil, fmt.Err("table and column", "required for add column")
 		}
 		sb.Write("ALTER TABLE ")
 		sb.Write(quoteIdent(s.Table))
@@ -281,7 +281,7 @@ func translateDDL(s ddl.Stmt, m model.Model) (string, []any, error) {
 
 	case ddl.OpDropColumn:
 		if s.Table == "" || s.ColumnName == "" {
-			return "", nil, fmt.Err("table and column name required for drop column")
+			return "", nil, fmt.Err("table and column", "name required for drop column")
 		}
 		sb.Write("ALTER TABLE ")
 		sb.Write(quoteIdent(s.Table))
