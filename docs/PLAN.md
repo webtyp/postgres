@@ -2,8 +2,10 @@
 PLAN: "feat(postgres): render ddl.OpCopyColumn; update to ddl v0.0.45"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 13269407802657739776
+PR: https://github.com/webtyp/postgres/pull/18
+REVIEWED_COMMIT: 36b86b2d78921b753124a4ee8cf1d54283bd9109
 ---
 
 > Read AGENTS.md at the repo root before any change.
