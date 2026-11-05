@@ -1,14 +1,11 @@
 {
   "languages": ["es", "zh", "hi", "ar", "pt", "fr", "de", "ru"],
   "keys": {
-    "IN operator slice cannot be empty": ["la porción del operador IN no puede estar vacía", "", "", "", "", "", "", ""],
-    "It was skipped: your data was restored completely.": ["Se omitió: tus datos se restauraron completos.", "", "", "", "", "", "", ""],
-    "To stop seeing this notice, install the PostgreSQL client tools of version": ["Para dejar de ver este aviso, instala las herramientas cliente de PostgreSQL de la versión", "", "", "", "", "", "", ""],
-    "is newer than the database server": ["es más nuevo que el servidor de base de datos", "", "", "", "", "", "", ""],
-    "name required for drop column": ["se requiere el nombre para eliminar la columna", "", "", "", "", "", "", ""],
-    "required for add column": ["se requiere para agregar una columna", "", "", "", "", "", "", ""],
-    "table and column": ["tabla y columna", "", "", "", "", "", "", ""],
-    "table, old name and column required for rename": ["se requiere la tabla, el nombre antiguo y la columna para renombrar", "", "", "", "", "", "", ""],
-    "— the server did not understand one setting it sent": ["— el servidor no entendió un ajuste que envió", "", "", "", "", "", "", ""]
+    "IN operator slice cannot be empty": ["la porción del operador IN no puede estar vacía", "IN 操作符的切片不能为空", "IN ऑपरेटर स्लाइस खाली नहीं हो सकता", "لا يمكن أن تكون شريحة عامل التشغيل IN فارغة", "a fatia do operador IN não pode estar vazia", "la tranche de l'opérateur IN ne peut pas être vide", "IN-Operator-Slice darf nicht leer sein", "срез оператора IN не может быть пустым"],
+    "It was skipped: your data was restored completely.": ["Se omitió: tus datos se restauraron completos.", "已跳过：您的数据已完全恢复。", "इसे छोड़ दिया गया था: आपका डेटा पूरी तरह से बहाल कर दिया गया था।", "تم تخطيه: تمت استعادة بياناتك بالكامل.", "Foi ignorado: seus dados foram restaurados completamente.", "Cela a été ignoré : vos données ont été entièrement restaurées.", "Es wurde übersprungen: Ihre Daten wurden vollständig wiederhergestellt.", "Пропущено: ваши данные полностью восстановлены."],
+    "To stop seeing this notice, install the PostgreSQL client tools of version": ["Para dejar de ver este aviso, instala las herramientas cliente de PostgreSQL de la versión", "要停止看到此通知，请安装版本的 PostgreSQL 客户端工具", "इस सूचना को देखना बंद करने के लिए, PostgreSQL क्लाइंट टूल्स का संस्करण स्थापित करें", "للتوقف عن رؤية هذا الإشعار ، قم بتثبيت أدوات عميل PostgreSQL ذات الإصدار", "Para parar de ver este aviso, instale as ferramentas cliente do PostgreSQL da versão", "Pour ne plus voir cet avis, installez les outils clients PostgreSQL de la version", "Um diesen Hinweis nicht mehr zu sehen, installieren Sie die PostgreSQL-Client-Tools der Version", "Чтобы перестать видеть это уведомление, установите клиентские инструменты PostgreSQL версии"],
+    "is newer than the database server": ["es más nuevo que el servidor de base de datos", "比数据库服务器新", "डेटाबेस सर्वर से नया है", "أحدث من خادم قاعدة البيانات", "é mais novo que o servidor de banco de dados", "est plus récent que le serveur de base de données", "ist neuer als der Datenbankserver", "новее, чем сервер базы данных"],
+    "postgres: a table or column name is missing in": ["postgres: falta un nombre de tabla o columna en", "postgres: 在此缺少表名或列名", "postgres: इसमें एक टेबल या कॉलम का नाम गायब है", "postgres: اسم الجدول أو العمود مفقود في", "postgres: um nome de tabela ou coluna está faltando em", "postgres: un nom de table ou de colonne est manquant dans", "postgres: Ein Tabellen- oder Spaltenname fehlt in", "postgres: отсутствует имя таблицы или столбца в"],
+    "— the server did not understand one setting it sent": ["— el servidor no entendió un ajuste que envió", "— 服务器不理解它发送的一个设置", "— सर्वर ने एक सेटिंग को नहीं समझा जो उसने भेजा था", "— لم يفهم الخادم إعدادًا واحدًا أرسله", "— o servidor não entendeu uma configuração que enviou", "— le serveur n'a pas compris un paramètre qu'il a envoyé", "— der Server hat eine gesendete Einstellung nicht verstanden", "— сервер не понял одну отправленную настройку"]
   }
 }
