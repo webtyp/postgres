@@ -2,6 +2,8 @@
 PLAN: "feat(postgres): render ddl.OpCopyColumn; update to ddl v0.0.45"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 13269407802657739776
 ---
 
 > Read AGENTS.md at the repo root before any change.
