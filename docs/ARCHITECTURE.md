@@ -2,6 +2,7 @@
 
 ## Purpose
 The postgres adapter provides `storage.Conn` and `ddl.Compiler` implementations for PostgreSQL.
+- `OpCopyColumn` → `UPDATE … SET dest = src WHERE dest IS NULL AND src IS NOT NULL`
 It now also supports opening a pg_dump archive as a read-only `ddl.Snapshot` via `postgres.Backups`.
 
 ## Components

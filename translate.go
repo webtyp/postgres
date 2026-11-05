@@ -182,6 +182,15 @@ func translate(q storage.Query, m model.Model) (string, []any, error) {
 	return sb.String(), args, nil
 }
 
+const errNameMissing = "postgres: a table or column name is missing in"
+
+var (
+	stmtAddColumn    = "ADD COLUMN"
+	stmtRenameColumn = "RENAME COLUMN"
+	stmtDropColumn   = "DROP COLUMN"
+	stmtCopyColumn   = "UPDATE (copy column)"
+)
+
 // translateDDL converts a ddl.Stmt into Postgres SQL.
 func translateDDL(s ddl.Stmt, m model.Model) (string, []any, error) {
 	sb := fmt.Convert()
@@ -259,7 +268,7 @@ func translateDDL(s ddl.Stmt, m model.Model) (string, []any, error) {
 
 	case ddl.OpAddColumn:
 		if s.Column == nil || s.Table == "" {
-			return "", nil, fmt.Err("table and column", "required for add column")
+			return "", nil, fmt.Err(errNameMissing, stmtAddColumn)
 		}
 		sb.Write("ALTER TABLE ")
 		sb.Write(quoteIdent(s.Table))
@@ -268,9 +277,25 @@ func translateDDL(s ddl.Stmt, m model.Model) (string, []any, error) {
 		sb.Write(" ")
 		sb.Write(postgresType(s.Column.Type.Storage()))
 
+	case ddl.OpCopyColumn:
+		if s.Table == "" || s.OldName == "" || s.ColumnName == "" {
+			return "", nil, fmt.Err(errNameMissing, stmtCopyColumn)
+		}
+		sb.Write("UPDATE ")
+		sb.Write(quoteIdent(s.Table))
+		sb.Write(" SET ")
+		sb.Write(quoteIdent(s.ColumnName))
+		sb.Write(" = ")
+		sb.Write(quoteIdent(s.OldName))
+		sb.Write(" WHERE ")
+		sb.Write(quoteIdent(s.ColumnName))
+		sb.Write(" IS NULL AND ")
+		sb.Write(quoteIdent(s.OldName))
+		sb.Write(" IS NOT NULL")
+
 	case ddl.OpRenameColumn:
 		if s.Column == nil || s.OldName == "" || s.Table == "" {
-			return "", nil, fmt.Err("table, old name and column required for rename")
+			return "", nil, fmt.Err(errNameMissing, stmtRenameColumn)
 		}
 		sb.Write("ALTER TABLE ")
 		sb.Write(quoteIdent(s.Table))
@@ -281,7 +306,7 @@ func translateDDL(s ddl.Stmt, m model.Model) (string, []any, error) {
 
 	case ddl.OpDropColumn:
 		if s.Table == "" || s.ColumnName == "" {
-			return "", nil, fmt.Err("table and column", "name required for drop column")
+			return "", nil, fmt.Err(errNameMissing, stmtDropColumn)
 		}
 		sb.Write("ALTER TABLE ")
 		sb.Write(quoteIdent(s.Table))
