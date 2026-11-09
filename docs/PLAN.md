@@ -2,6 +2,8 @@
 PLAN: "refactor!: Exec reports rows affected and a duplicate key (storage.Result, storage.Duplicate) — postgres"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 4900497936550993297
 ---
 
 > Read AGENTS.md at the repo root before any change.
