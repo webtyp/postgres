@@ -50,8 +50,8 @@ func postgresType(t model.FieldType) string {
 }
 
 func postgresColumnType(f model.Field) string {
-	if f.Type.Storage() == model.FieldText && f.Permitted.Maximum > 0 {
-		return fmt.Sprintf("VARCHAR(%d)", f.Permitted.Maximum)
+	if f.Type.Storage() == model.FieldText && f.Maximum > 0 {
+		return fmt.Sprintf("VARCHAR(%d)", f.Maximum)
 	}
 	return postgresType(f.Type.Storage())
 }

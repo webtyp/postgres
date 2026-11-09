@@ -32,9 +32,13 @@ func (p *PostgresTx) CompileDDL(s ddl.Stmt, m model.Model) (string, []any, error
 }
 
 // Exec executes a query within the transaction.
-func (p *PostgresTx) Exec(query string, args ...any) error {
-	_, err := p.tx.Exec(query, args...)
-	return err
+func (p *PostgresTx) Exec(query string, args ...any) (storage.Result, error) {
+	res, err := p.tx.Exec(query, args...)
+	if err != nil {
+		return storage.Affected(0), mapExecError(err)
+	}
+	n, _ := res.RowsAffected()
+	return storage.Affected(n), nil
 }
 
 // QueryRow executes a query that is expected to return at most one row within the transaction.

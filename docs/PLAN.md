@@ -2,8 +2,10 @@
 PLAN: "refactor!: Exec reports rows affected and a duplicate key (storage.Result, storage.Duplicate) — postgres"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 4900497936550993297
+PR: https://github.com/webtyp/postgres/pull/19
+REVIEWED_COMMIT: c96232f0379b843238890c3c585dd032d4c7e99c
 ---
 
 > Read AGENTS.md at the repo root before any change.

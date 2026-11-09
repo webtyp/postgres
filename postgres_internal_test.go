@@ -384,7 +384,7 @@ func TestInternal_Coverage(t *testing.T) {
 	}
 
 	// Clean up table if it exists
-	_ = adapter.Exec("DROP TABLE IF EXISTS internal_test CASCADE")
+	_, _ = adapter.Exec("DROP TABLE IF EXISTS internal_test CASCADE")
 
 	// Create table using adapter CompileDDL
 	createStmt := ddl.Stmt{Op: ddl.OpCreateTable, Table: "internal_test"}
@@ -392,7 +392,7 @@ func TestInternal_Coverage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CompileDDL failed: %v", err)
 	}
-	if err := adapter.Exec(query); err != nil {
+	if _, err := adapter.Exec(query); err != nil {
 		t.Fatalf("Exec failed: %v", err)
 	}
 
@@ -432,7 +432,7 @@ func TestInternal_Coverage(t *testing.T) {
 	}
 
 	// Test Exec / Query / QueryRow
-	if err := adapter.Exec(plan.Query, plan.Args...); err != nil {
+	if _, err := adapter.Exec(plan.Query, plan.Args...); err != nil {
 		t.Fatalf("Exec insert failed: %v", err)
 	}
 
@@ -473,7 +473,7 @@ func TestInternal_Coverage(t *testing.T) {
 	}
 
 	// tx Exec / Query / QueryRow
-	err = tx.Exec("INSERT INTO internal_test (name) VALUES ($1)", "tx-test")
+	_, err = tx.Exec("INSERT INTO internal_test (name) VALUES ($1)", "tx-test")
 	if err != nil {
 		t.Errorf("tx.Exec failed: %v", err)
 	}
