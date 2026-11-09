@@ -124,7 +124,7 @@ func (s *snapshot) ReadTable(table string) (storage.Rows, error) {
 		q := quoteIdent(c.Name)
 		list[i] = q + "::text AS " + q
 	}
-	return s.PostgresAdapter.Query("SELECT " + strings.Join(list, ", ") + " FROM " + quoteIdent(table))
+	return s.Query("SELECT " + strings.Join(list, ", ") + " FROM " + quoteIdent(table))
 }
 
 func (s *snapshot) Close() error {
