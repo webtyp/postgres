@@ -2,13 +2,25 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"webtyp.com/ddl"
 	"webtyp.com/fmt"
 	"webtyp.com/model"
 	"webtyp.com/storage"
 )
+
+func mapExecError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+		return storage.Duplicate(err)
+	}
+	return err
+}
 
 // PostgresAdapter implements storage.Conn and ddl.Compiler for PostgreSQL.
 type PostgresAdapter struct {
@@ -48,9 +60,13 @@ func (p *PostgresAdapter) CompileDDL(s ddl.Stmt, m model.Model) (string, []any, 
 	return translateDDL(s, m)
 }
 
-func (p *PostgresAdapter) Exec(query string, args ...any) error {
-	_, err := p.db.Exec(query, args...)
-	return err
+func (p *PostgresAdapter) Exec(query string, args ...any) (storage.Result, error) {
+	res, err := p.db.Exec(query, args...)
+	if err != nil {
+		return storage.Affected(0), mapExecError(err)
+	}
+	n, _ := res.RowsAffected()
+	return storage.Affected(n), nil
 }
 
 func (p *PostgresAdapter) QueryRow(query string, args ...any) storage.Scanner {
