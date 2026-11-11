@@ -10,5 +10,5 @@ require (
 
 require (
 	webtyp.com/ddl v0.0.49
-	webtyp.com/storage v0.2.0
+	webtyp.com/storage v0.2.3
 )
