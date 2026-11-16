@@ -4,11 +4,11 @@ go 1.25.2
 
 require (
 	github.com/lib/pq v1.12.3
-	webtyp.com/fmt v1.0.2
-	webtyp.com/model v0.2.23
+	webtyp.com/fmt v1.0.3
+	webtyp.com/model v0.2.24
 )
 
 require (
-	webtyp.com/ddl v0.0.49
-	webtyp.com/storage v0.2.3
+	webtyp.com/ddl v0.0.57
+	webtyp.com/storage v0.2.8
 )
