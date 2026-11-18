@@ -9,6 +9,6 @@ require (
 )
 
 require (
-	webtyp.com/ddl v0.0.57
+	webtyp.com/ddl v0.0.59
 	webtyp.com/storage v0.2.8
 )
