@@ -3,12 +3,10 @@ package postgres
 import (
 	"database/sql"
 	"errors"
-	"net/url"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"webtyp.com/ddl"
 	wfmt "webtyp.com/fmt"
@@ -46,9 +44,9 @@ func Backups(dsn string) ddl.BackupFormat { return backups{dsn: dsn} }
 type backups struct{ dsn string }
 
 func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
-	u, err := url.Parse(b.dsn)
-	if err != nil || (u.Scheme != urlSchemePG && u.Scheme != urlSchemePGSQL) {
-		return nil, ErrDSNNotURL
+	u, err := parseURLDSN(b.dsn)
+	if err != nil {
+		return nil, err
 	}
 	restoreTool, err := exec.LookPath(pgRestoreBin)
 	if err != nil {
@@ -73,16 +71,10 @@ func (b backups) OpenBackup(path string) (ddl.Snapshot, error) {
 		admin.Close()
 		return nil, err
 	}
-	name := snapshotPrefix + strconv.FormatInt(time.Now().UnixNano(), 10)
-	if _, err := admin.Exec("CREATE DATABASE " + quoteIdent(name)); err != nil {
+	target, drop, err := createEmptyDatabase(admin, u, snapshotPrefix)
+	if err != nil {
 		admin.Close()
 		return nil, err
-	}
-	target := *u
-	target.Path = "/" + name
-	drop := func() error {
-		_, err := admin.Exec("DROP DATABASE IF EXISTS " + quoteIdent(name) + " WITH (FORCE)")
-		return errors.Join(err, admin.Close())
 	}
 	out, err := exec.Command(pgRestoreBin, "--clean", "--if-exists", "--no-owner", "--no-acl", "--dbname", target.String(), path).CombinedOutput()
 	var notices []error

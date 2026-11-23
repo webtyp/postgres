@@ -78,6 +78,15 @@ func main() {
 
 Needs `pg_restore` in PATH and a URL DSN with permission to `CREATE DATABASE`. The PostgreSQL client tools must not be newer than the server (ErrPgRestoreNewer says which to install).
 
+### An empty database for a test run
+```go
+	testDSN, drop, err := postgres.NewEmptyDatabase(dsn, "apptest_")
+	if err != nil { return err }
+	defer drop() // deletes it, open connections included
+```
+
+Needs a URL DSN with permission to `CREATE DATABASE`.
+
 ## Documentation Map
 
 | File | Answers |
